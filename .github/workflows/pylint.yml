@@ -1,0 +1,23 @@
+
+
+import telebot
+from telebot import types
+import requests
+import zipfile
+
+bot = telebot.TeleBot('Your_Token_Here')
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    msg = bot.reply_to(message, "Welcome! Please enter the project's name to start downloading!")
+
+@bot.message_handler(content_types=['text'])
+def send_project(message):
+    project_name = message.text
+    project_url = 'https://github.com/{}/archive/master.zip'.format(project_name)
+    r = requests.get(project_url)
+    zip_ref = zipfile.ZipFile(r.content)
+    zip_ref.extractall('temp_folder')
+    bot.send_message(message.chat.id, 'Project is successfully downloaded!')
+
+bot.polling()
